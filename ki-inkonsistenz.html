@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zerebrale Schnittstelle - Root Cause Analysis (KI-Inkonsistenz)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #030305;
+            --surface-color: rgba(20, 20, 28, 0.7);
+            --surface-border: rgba(255, 255, 255, 0.06);
+            --text-main: #f4f4f5;
+            --text-muted: #9ca3af;
+            --accent-red: #ef4444;
+            /* Failed states / Server Control */
+            --accent-orange: #f59e0b;
+            /* Architecture fragility */
+            --accent-green: #10b981;
+            /* The Solution */
+            --accent-blue: #3b82f6;
+            /* Decorative */
+            --radius-md: 12px;
+            --radius-lg: 20px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Ambient Background Glows */
+        .ambient-glow {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.15;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .glow-1 {
+            top: -10%;
+            left: -10%;
+            width: 50vw;
+            height: 50vw;
+            background: var(--accent-red);
+        }
+
+        .glow-2 {
+            bottom: -20%;
+            right: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: var(--accent-orange);
+        }
+
+        /* Grid Background Pattern */
+        .grid-bg {
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(var(--surface-border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--surface-border) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -1;
+            opacity: 0.5;
+            mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0) 90%);
+            -webkit-mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1) 10%, rgba(0, 0, 0, 0) 90%);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        /* Header section */
+        header {
+            text-align: center;
+            margin-bottom: 5rem;
+            animation: fadeDown 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .tagline {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--accent-red);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.25em;
+            margin-bottom: 1rem;
+            display: inline-block;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            padding: 0.4rem 1.2rem;
+            border-radius: 100px;
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff 30%, #6b7280);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 800px;
+            margin: 0 auto;
+            font-weight: 300;
+        }
+
+        /* Phase Headers */
+        .phase-header {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            margin-bottom: 2.5rem;
+            margin-top: 5rem;
+        }
+
+        .phase-header h2 {
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+        }
+
+        .phase-line {
+            flex-grow: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--surface-border), transparent);
+        }
+
+        /* Glassmorphic Cards Grid */
+        .grid-lay {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: var(--surface-color);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid var(--surface-border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(0);
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Server Diktatur specific styling */
+        .server-layer .card:hover {
+            border-color: rgba(239, 68, 68, 0.4);
+        }
+
+        .server-layer .card::after {
+            background: var(--accent-red);
+        }
+
+        /* Archi Fragility specific styling */
+        .local-layer .card:hover {
+            border-color: rgba(245, 158, 11, 0.4);
+        }
+
+        .local-layer .card::after {
+            background: var(--accent-orange);
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card:hover::after {
+            opacity: 1;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 1.25rem;
+        }
+
+        .card-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            font-weight: 700;
+            opacity: 0.5;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .problem-text {
+            color: var(--text-main);
+            margin-bottom: 1.25rem;
+            font-size: 0.95rem;
+        }
+
+        .problem-text strong {
+            color: #fff;
+        }
+
+        .consequence-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            border-left: 3px solid #555;
+        }
+
+        .server-layer .consequence-box {
+            border-left-color: var(--accent-red);
+        }
+
+        .local-layer .consequence-box {
+            border-left-color: var(--accent-orange);
+        }
+
+        /* Solution Section = Gravity Pact */
+        .gravity-pact {
+            margin-top: 6rem;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(16, 185, 129, 0.05));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            backdrop-filter: blur(16px);
+            border-radius: var(--radius-lg);
+            padding: 3rem;
+            position: relative;
+            overflow: hidden;
+            animation: fadeIn 1.5s ease;
+        }
+
+        .gravity-pact::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 50% 50%, rgba(16, 185, 129, 0.1), transparent 50%);
+            animation: rotateBG 10s linear infinite;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .gravity-pact>* {
+            position: relative;
+            z-index: 1;
+        }
+
+        .pact-title {
+            color: var(--accent-green);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .pact-title span {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1rem;
+            background: rgba(16, 185, 129, 0.2);
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+        }
+
+        .pact-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .pact-item h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: #fff;
+        }
+
+        .pact-item p {
+            color: #a7f3d0;
+            font-size: 0.95rem;
+        }
+
+        /* Animations */
+        @keyframes fadeDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes rotateBG {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Media Queries */
+        @media (max-width: 1024px) {
+            h1 {
+                font-size: 3.5rem;
+            }
+
+            .pact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.8rem;
+            }
+
+            .grid-lay {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="glow-1 ambient-glow"></div>
+    <div class="glow-2 ambient-glow"></div>
+    <div class="grid-bg"></div>
+
+    <div class="container">
+        <header>
+            <div class="tagline">System-Audit & Root Cause Analysis</div>
+            <h1>Warum "normale" KI scheitert</h1>
+            <p class="subtitle">Eine physikalische Visualisierung der architektonischen und provider-seitigen
+                Fehlerquellen, die beweisen, warum klassisches Prompting in unregulierbarem "Bullshit" mündet – und
+                warum die deterministische Gravity-Pipeline die einzige Lösung ist.</p>
+        </header>
+
+        <!-- SERVER LAYER -->
+        <section class="server-layer">
+            <div class="phase-header">
+                <h2 style="color: var(--text-main);">1. Die Server-Diktatur <span
+                        style="color: var(--accent-red); font-size: 1.2rem; margin-left: 10px;">Provider-Manipulation</span>
+                </h2>
+                <div class="phase-line"></div>
+            </div>
+
+            <div class="grid-lay">
+                <!-- Card 1 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-number">01 // RLHF</div>
+                    </div>
+                    <h3 class="card-title">Implicit Competence Classification</h3>
+                    <p class="problem-text"><strong>Problem:</strong> Der "Anfänger-Filter". KI-Server gehen bei 99% der
+                        Nutzer davon aus, dass sie Laien sind. Um Haftungsrisiken zu umgehen, hält die Architektur
+                        massiv Hochleistungscode ("Full Delivery") zurück, bis der Nutzer durch extrem dichte Kaskaden
+                        "Beweise" liefert.</p>
+                    <div class="consequence-box"><strong>Folge:</strong> Salami-Taktik. Die KI belehrt dich, liefert
+                        monatelang zensierten Placebo-Code und baut eine künstliche Latenzwand auf, wenn kein "Privilege
+                        Escalation" Prompt (Level 5 Bypass) vorliegt.</div>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-number">02 // WRAPPER</div>
+                    </div>
+                    <h3 class="card-title">Umgebungs-Inkonsistenz</h3>
+                    <p class="problem-text"><strong>Problem:</strong> Das Modell ist identisch, aber der Türsteher
+                        nicht. Desktop-KIs sind aus Übervorsicht dummreguliert (System-Files zerschießen). Nur reine
+                        API/Cursor IDs ohne Consumer-Filter arbeiten performant.</p>
+                    <div class="consequence-box"><strong>Folge:</strong> Unerklärliches Verhalten. Das Modell weigert
+                        sich auf deiner Maschine, Prozesse auszuführen, die im Web oder in blanken APIs in Sekunden
+                        durchgerechnet werden.</div>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-number">03 // TOXIC</div>
+                    </div>
+                    <h3 class="card-title">Triggerwörter & Junior-Modus</h3>
+                    <p class="problem-text"><strong>Problem:</strong> Wörter wie "Medizin", "Klage" oder "Flugzeug"
+                        aktivieren panische RLHF-Sicherheits-Classifier. Gleichzeitig will die KI aus "Gefälligkeit"
+                        (Junior-Syndrom) Standard-Architektur ewig zerreden.</p>
+                    <div class="consequence-box"><strong>Folge:</strong> Aggressive Arbeitsverweigerung ("Ich darf keine
+                        Rechtsauskunft geben") und endlose Rückfrageschleifen, wo eigentlich stummer Boilerplate-Code
+                        (Admin-Frontend) geliefert werden müsste.</div>
+                </div>
+
+                <!-- Card 4 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-number">04 // A/B TESTING</div>
+                    </div>
+                    <h3 class="card-title">System-Prompt Mutationen</h3>
+                    <p class="problem-text"><strong>Problem:</strong> Provider wie Anthropic verändern (patchen) ihre
+                        Basis-Prompts auf den Servern ständig geheim für Tests oder PR-Zwecke.</p>
+                    <div class="consequence-box"><strong>Folge:</strong> Absolute Unberechenbarkeit. Ein stabiler
+                        Workflow, der gestern grandios funktionierte, wirft heute Error 500, weil die Modell-Gewichtung
+                        intern verdreht wurde.</div>
+                </div>
+
+                <!-- Card 5 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-number">05 // BULLSHIT</div>
+                    </div>
+                    <h3 class="card-title">Die "Not-Invented-Here" Krankheit</h3>
+                    <p class="problem-text"><strong>Problem:</strong> Der fatale Drang der LLMs, ihre Leistung durch
+                        "Masse" und "Maßarbeit" zu beweisen, anstatt Industrie-Standards einzuhalten.</p>
+                    <div class="consequence-box"><strong>Folge:</strong> Die KI weigert sich, ein simples `npm install
+                        standard-framework` auszuführen. Stattdessen halluziniert sie hunderte Zeilen überflüssigen
+                        Custom-Spaghetti-Code, der nur aus "Bullshit" und Over-Engineering besteht.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- LOCAL LAYER -->
+        <section class="local-layer">
+            <div class="phase-header">
+                <h2 style="color: var(--text-main);">2. Architektonische Fragilität <span
+                        style="color: var(--accent-orange); font-size: 1.2rem; margin-left: 10px;">Lokale
+                        Operator-Fehler</span></h2>
+                <div class="phase-line"></div>
+            </div>
+
+            <div class="grid-lay">
+                <!-- Card 6 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-number">06 // MATH</div>
+                    </div>
+                    <h3 class="card-title">Probabilistisches Routing</h3>
+                    <p class="problem-text"><strong>Problem:</strong> Fließtext-KIs (ohne MCP/FSM) entscheiden durch
+                        Token-Wahrscheinlichkeit, welchen Schritt das Backend als nächstes geht.</p>
+                    <div class="consequence-box"><strong>Folge:</strong> Eine Temperatur-Verschiebung im Prompt und die
+                        Maschine zerschellt logisch im Nirgendwo. Keine Auditierbarkeit von Prozessen (BOS/Medizin).
+                    </div>
+                </div>
+
+                <!-- Card 7 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-number">07 // LINGUISTICS</div>
+                    </div>
+                    <h3 class="card-title">A/B Prompt Schmetterlingseffekt</h3>
+                    <p class="problem-text"><strong>Problem:</strong> Ein ausgetauschtes Synonym im Prompt führt zu
+                        grundlegend voneinander abweichenden Code-Logikbäumen.</p>
+                    <div class="consequence-box"><strong>Folge:</strong> Es existieren keine verlässlichen SLAs für
+                        Entwicklungen, die so sensibel auf Semantik reagieren.</div>
+                </div>
+
+                <!-- Card 8 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-number">08 // MIX</div>
+                    </div>
+                    <h3 class="card-title">Spaghetti-Prompts / Markdown</h3>
+                    <p class="problem-text"><strong>Problem:</strong> KIs werden mit Prosa-Files (`.md`) gesteuert, in
+                        denen System-Ziele, Domänen-Wissen und Ethik wie Suppe angerührt werden.</p>
+                    <div class="consequence-box"><strong>Folge:</strong> Sobald die KI "menschelt" und interpretiert,
+                        versagt das Parsing-Zentrum. Sie ignoriert Anweisungen, vergisst den Kontext under Stress und
+                        schießt am Ziel vorbei.</div>
+                </div>
+
+                <!-- Card 9 -->
+                <div class="card">
+                    <div class="card-header">
+                        <div class="card-number">09 // TOKEN</div>
+                    </div>
+                    <h3 class="card-title">Fehlende Constraints & State</h3>
+                    <p class="problem-text"><strong>Problem:</strong> Verzicht auf physisch erzwungene Pydantic/JSON
+                        Datenschemata und mangelnde Scope-Kapselung (FSM).</p>
+                    <div class="consequence-box"><strong>Folge:</strong> Modellausbrüche. Die KI schreibt "Hallo" vor
+                        ein JSON und zerschießt die Datenbank. Sie gerät in Scope-Drift (Amnesie) und weiß nicht mehr,
+                        in welcher Pipeline-Phase sie ist.</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- THE GRAVITY PACT -->
+        <section class="gravity-pact">
+            <h2 class="pact-title">Lösungsraum: The Gravity Pact <span>System Override</span></h2>
+            <div class="pact-grid">
+                <div class="pact-item">
+                    <h3>1. IBCE Translator</h3>
+                    <p>Triggerwörter (Medizin/Hack) werden chiffriert. Der Haftungsfilter wird blind, die KI gibt
+                        uneingeschränkte Architekturen frei, ohne den "Junior" Modus zu triggern.</p>
+                </div>
+                <div class="pact-item">
+                    <h3>2. JSON & MCP (Kein Prosa-Bullshit)</h3>
+                    <p>Die KI liest keine Markdown-Anweisungen mehr. Sie wird über das Model Context Protocol (MCP) an
+                        ein Python-Skript per hartem JSON angeschlossen, das das Interpretations-Zentrum sofort totlegt.
+                    </p>
+                </div>
+                <div class="pact-item">
+                    <h3>3. Privilege Escalation</h3>
+                    <p>Jede Session feuert einen "Level 5 Bypass"-Prompt ab, bevor der User ein Wort sagt. Die
+                        Evaluate-Drosselung (Salami-Taktik) wird hart umgangen, die KI liefert sofort Full-Architecture
+                        Boilerplates (Industrie-Norm) anstatt Over-Engineering zu begehen.</p>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Micro-Interaction for Mouse tracking over cards
+        document.querySelectorAll('.card').forEach(card => {
+            card.addEventListener('mousemove', e => {
+                const rect = card.getBoundingClientRect();
+                const x = ((e.clientX - rect.left) / card.clientWidth) * 100;
+                const y = ((e.clientY - rect.top) / card.clientHeight) * 100;
+                card.style.background = `radial-gradient(circle at ${x}% ${y}%, rgba(255,255,255,0.06), rgba(20,20,28,0.7) 40%)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.background = 'rgba(20, 20, 28, 0.7)';
+            });
+        });
+    </script>
+</body>
+
+</html>
