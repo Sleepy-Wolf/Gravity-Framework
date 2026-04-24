@@ -1942,56 +1942,43 @@
                     <p class="mb-3 text-sm font-medium uppercase tracking-widest text-muted-foreground">Deep Dives
                     <h2 class="mb-6 text-3xl font-bold tracking-tight sm:text-4xl">Die Zerebrale Schnittstelle</h2>
                 </div>
-                <div class="mb-16 grid gap-6 md:grid-cols-3">
-                    <div data-slot=card
-                        class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-border/50 bg-card/50 text-center">
-                        <div data-slot=card-content class="px-6 pt-6"><svg xmlns=http://www.w3.org/2000/svg width=24
-                                height=24 viewBox="0 0 24 24" fill=none stroke=currentColor stroke-width=2
-                                stroke-linecap=round stroke-linejoin=round
-                                class="lucide lucide-rocket mx-auto mb-4 h-8 w-8 text-blue-400" aria-hidden=true>
-                                <path
-                                    d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09z">
-                                </path>
-                                <path
-                                    d="m12 15-3-3a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 0 1-4 2z">
-                                </path>
-                                <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"></path>
-                                <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"></path>
-                            </svg>
-                            <h3 class="mb-2 font-semibold"><a href="./zerebrale-schnittstelle.html" class="hover:text-blue-400 transition-colors">Die Zerebrale Schnittstelle</a></h3>
-                            <p class="text-sm text-muted-foreground">Die Brücke zwischen philosophischer Singularität und hartem, deterministischem Framework. Transmission an Leonhard.</p>
+                <div class="mb-16 grid gap-6 md:grid-cols-2 max-w-3xl mx-auto">
+                    <a href="./zerebrale-schnittstelle.html" class="group block">
+                        <div data-slot=card
+                            class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-blue-500/30 bg-card/50 text-center transition-all duration-300 group-hover:border-blue-400 group-hover:shadow-lg group-hover:shadow-blue-500/10 group-hover:-translate-y-1">
+                            <div data-slot=card-content class="px-6 pt-6">
+                                <svg xmlns=http://www.w3.org/2000/svg width=24 height=24 viewBox="0 0 24 24" fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round class="lucide mx-auto mb-4 h-8 w-8 text-blue-400" aria-hidden=true>
+                                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                    <line x1=12 y1=22.08 x2=12 y2=12></line>
+                                </svg>
+                                <h3 class="mb-2 text-lg font-semibold text-white">Die Zerebrale Schnittstelle</h3>
+                                <p class="text-sm text-muted-foreground mb-4">Die Brücke zwischen philosophischer Singularität und hartem, deterministischem Framework. Transmission an Leonhard.</p>
+                                <span class="inline-flex items-center gap-2 text-sm font-medium text-blue-400 group-hover:text-blue-300 transition-colors">
+                                    Lesen
+                                    <svg xmlns=http://www.w3.org/2000/svg width=16 height=16 viewBox="0 0 24 24" fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round class="transition-transform group-hover:translate-x-1"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                    <div data-slot=card
-                        class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-border/50 bg-card/50 text-center">
-                        <div data-slot=card-content class="px-6 pt-6"><svg xmlns=http://www.w3.org/2000/svg width=24
-                                height=24 viewBox="0 0 24 24" fill=none stroke=currentColor stroke-width=2
-                                stroke-linecap=round stroke-linejoin=round
-                                class="lucide lucide-message-circle mx-auto mb-4 h-8 w-8 text-blue-400"
-                                aria-hidden=true>
-                                <path
-                                    d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719">
-                                </path>
-                            </svg>
-                            <h3 class="mb-2 font-semibold"><a href="./ki-inkonsistenz.html" class="hover:text-blue-400 transition-colors">Root Cause Analysis</a></h3>
-                            <p class="text-sm text-muted-foreground">Warum normale KI scheitert. Provider-Manipulation, architektonische Fragilität und der Gravity Pact als Lösung.</p>
+                    </a>
+                    <a href="./ki-inkonsistenz.html" class="group block">
+                        <div data-slot=card
+                            class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-red-500/30 bg-card/50 text-center transition-all duration-300 group-hover:border-red-400 group-hover:shadow-lg group-hover:shadow-red-500/10 group-hover:-translate-y-1">
+                            <div data-slot=card-content class="px-6 pt-6">
+                                <svg xmlns=http://www.w3.org/2000/svg width=24 height=24 viewBox="0 0 24 24" fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round class="lucide mx-auto mb-4 h-8 w-8 text-red-400" aria-hidden=true>
+                                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"></path>
+                                    <line x1=12 y1=9 x2=12 y2=13></line>
+                                    <line x1=12 y1=17 x2=12.01 y2=17></line>
+                                </svg>
+                                <h3 class="mb-2 text-lg font-semibold text-white">Root Cause Analysis</h3>
+                                <p class="text-sm text-muted-foreground mb-4">Warum normale KI scheitert. Provider-Manipulation, architektonische Fragilität und der Gravity Pact als Lösung.</p>
+                                <span class="inline-flex items-center gap-2 text-sm font-medium text-red-400 group-hover:text-red-300 transition-colors">
+                                    Lesen
+                                    <svg xmlns=http://www.w3.org/2000/svg width=16 height=16 viewBox="0 0 24 24" fill=none stroke=currentColor stroke-width=2 stroke-linecap=round stroke-linejoin=round class="transition-transform group-hover:translate-x-1"><path d="M5 12h14"></path><path d="m12 5 7 7-7 7"></path></svg>
+                                </span>
+                            </div>
                         </div>
-                    </div>
-                    <div data-slot=card
-                        class="text-card-foreground flex flex-col gap-6 rounded-xl border py-6 shadow-sm border-border/50 bg-card/50 text-center">
-                        <div data-slot=card-content class="px-6 pt-6"><svg xmlns=http://www.w3.org/2000/svg width=24
-                                height=24 viewBox="0 0 24 24" fill=none stroke=currentColor stroke-width=2
-                                stroke-linecap=round stroke-linejoin=round
-                                class="lucide lucide-send mx-auto mb-4 h-8 w-8 text-blue-400" aria-hidden=true>
-                                <path
-                                    d="M14.536 21.686a.5.5 0 0 0 .937-.024l6.5-19a.496.496 0 0 0-.635-.635l-19 6.5a.5.5 0 0 0-.024.937l7.93 3.18a2 2 0 0 1 1.112 1.11z">
-                                </path>
-                                <path d="m21.854 2.147-10.94 10.939"></path>
-                            </svg>
-                            <h3 class="mb-2 font-semibold">Showcase</h3>
-                            <p class="text-sm text-muted-foreground">Mietrechts-Reasoning-Engine, Immobilien-Management und deterministische Agenten — live auf eigener EU-Infrastruktur.</p>
-                        </div>
-                    </div>
+                    </a>
                 </div>
                 <div data-orientation=horizontal role=none data-slot=separator
                     class="bg-border shrink-0 data-[orientation=horizontal]:h-px data-[orientation=horizontal]:w-full data-[orientation=vertical]:h-full data-[orientation=vertical]:w-px mx-auto mb-16 max-w-xs">
